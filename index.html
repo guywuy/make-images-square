@@ -5,13 +5,14 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Images</title>
+  <title>Make Images Square</title>
   <script src="https://cdn.rawgit.com/oliver-moran/jimp/v0.2.27/browser/lib/jimp.min.js"></script>
 
   <style>
     html {
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
+      font-family: 'Helvetica', sans-serif;
     }
 
     *,
@@ -24,11 +25,30 @@
     body {
       margin: 0;
       padding: 0;
+      padding-top: 10px;
+      text-align: center;
     }
 
     img {
       max-width: 100%;
+      height: auto;
       display: block;
+    }
+
+    a {
+      display: inline-block;
+      padding: 20px;
+      background: #6d6d6d;
+      color: white;
+      text-decoration: none;
+      margin: 10px auto;
+    }
+
+    input {
+      display: block;
+      padding: 2rem;
+      background: lightgray;
+      width: 100%;
     }
 
 
@@ -59,6 +79,12 @@
           image.width = width;
           image.height = height;
           document.body.appendChild(image);
+          
+          var anchor = document.createElement('a');
+          anchor.download = "Square";
+          anchor.href = dataUri;
+          anchor.innerText = 'Download';
+          document.querySelector('.container').appendChild(anchor);
       }
     }
 
