@@ -28,6 +28,7 @@
 
     img {
       max-width: 100%;
+      display: block;
     }
 
 
@@ -36,7 +37,7 @@
 
 <body>
   <main class="container">
-    <input type="file" onchange="newFile(this);">
+    <input type="file" onchange="newFile(this);" multiple>
 
   </main>
 
@@ -82,7 +83,9 @@
         // "transferable" object in mozilla's world.
         // To speed file transfer in a cross-browser way, readAsArrayBuffer here on the main thread
         // then pass the arraybuffer to the worker thread.
-        readFileAndProcess(element.files[0]);
+        for (var i=0; i<element.files.length; i++) {
+            readFileAndProcess(element.files[i]);
+        }
 
         function readFileAndProcess(readfile){
           var fr = new FileReader(),
