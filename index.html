@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Images</title>
+  <script src="https://cdn.rawgit.com/oliver-moran/jimp/v0.2.27/browser/lib/jimp.min.js"></script>
+
+  <style>
+    html {
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    *,
+    *::before,
+    *::after {
+      -webkit-box-sizing: border-box;
+      box-sizing: inherit;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <input type="file" onchange="newFile(this);">
+
+  </main>
+
+  
+  <script>
+
+
+    function workerMessageHandler(e) {
+      var returnObject = e.data;
+
+      if (returnObject.type === "DATA_URI") {
+          // display processed image by data URI:
+          var dataUri = returnObject.data;
+          var width = returnObject.width;
+          var height = returnObject.height;
+
+          var image = document.createElement("img");
+          image.src = dataUri;
+          image.width = width;
+          image.height = height;
+          document.body.appendChild(image);
+      }
+    }
+
+    function createWorkerForImageInput(input,filename){
+        var worker = new Worker("jimp-worker.js"),
+            start = (new Date()).getTime();
+        worker.onmessage = function(e){
+            console.log(filename + " processed to "+ e.data.type +" in " + ((new Date()).getTime() - start) + "ms");
+            workerMessageHandler(e);
+        };
+        worker.onerror = function(e){
+            var message = "Could not process "+ filename + ': Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message;
+            alert(message);
+            console.warn(message);
+        };
+        worker.postMessage(input);
+    }
+
+    function newFile(element){
+
+        // Chrome allows direct transfer of element.files, but that object is not a
+        // "transferable" object in mozilla's world.
+        // To speed file transfer in a cross-browser way, readAsArrayBuffer here on the main thread
+        // then pass the arraybuffer to the worker thread.
+        readFileAndProcess(element.files[0]);
+
+        function readFileAndProcess(readfile){
+          var fr = new FileReader(),
+          filename = readfile.name.toString();
+          fr.addEventListener("load",function(){
+            createWorkerForImageInput(this.result,filename);
+          });
+          fr.readAsArrayBuffer(readfile);
+        }
+    }
+
+  </script>
+
+</body>
+
+</html>
