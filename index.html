@@ -59,6 +59,9 @@
   <main class="container">
     <input type="file" onchange="newFile(this);" multiple>
 
+    <section class="download-links"></section>
+    <section class="square-images"></section>
+
   </main>
 
   
@@ -73,18 +76,18 @@
           var dataUri = returnObject.data;
           var width = returnObject.width;
           var height = returnObject.height;
+          
+          var anchor = document.createElement('a');
+          anchor.download = "Square.jpg";
+          anchor.href = dataUri;
+          anchor.innerText = 'Download';
+          document.querySelector('.download-links').appendChild(anchor);
 
           var image = document.createElement("img");
           image.src = dataUri;
           image.width = width;
           image.height = height;
-          document.body.appendChild(image);
-          
-          var anchor = document.createElement('a');
-          anchor.download = "Square";
-          anchor.href = dataUri;
-          anchor.innerText = 'Download';
-          document.querySelector('.container').appendChild(anchor);
+          document.querySelector('.square-images').appendChild(image);
       }
     }
 
