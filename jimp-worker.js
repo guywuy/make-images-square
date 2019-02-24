@@ -18,7 +18,6 @@ self.addEventListener('message', function(e) {
     // See https://developer.mozilla.org/en-US/docs/Web/API/Transferable for support of transferables
     // Note that passing an array of Transferables makes the worker incompatible with IE10.
 
-
     Jimp.read(e.data).then(function(image){
         
         var originalMime = image._originalMime,
@@ -30,7 +29,7 @@ self.addEventListener('message', function(e) {
 
             image.background(0xFFFFFFFF)
             .contain(largestLength, largestLength)            // resize
-            .quality(94)                 // set JPEG quality
+            .quality(80)                 // set JPEG quality
             .getBuffer(targetMimeType,function(mime, data){
                 // With access to node's Buffer objects, it's easy to get a base64 string:
                 var dataUri = "data:" + targetMimeType + ";base64,"  + data.toString('base64');

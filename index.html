@@ -3,7 +3,12 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Make Images Square</title>
   <script src="https://cdn.rawgit.com/oliver-moran/jimp/v0.2.27/browser/lib/jimp.min.js"></script>
@@ -29,6 +34,10 @@
       text-align: center;
     }
 
+    h1 {
+      font-size: 16px;
+    }
+
     img {
       max-width: 100%;
       height: auto;
@@ -44,11 +53,44 @@
       margin: 10px auto;
     }
 
+    .upload-area {
+      position: relative;
+    }
+
     input {
       display: block;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    label {
+      display: block;
+      text-align: center;
       padding: 2rem;
-      background: lightgray;
-      width: 100%;
+      font-weight: bold;
+      color: white;
+      background: chocolate;
+    }
+
+    .results {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 10px;
+    }
+
+    .result-download {
+      position: relative;
+      border: 1px dashed lightcoral;
+    }
+
+    .result-download > a {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
 
@@ -57,18 +99,20 @@
 
 <body>
   <main class="container">
-    <input type="file" onchange="newFile(this);" multiple>
+    <h1>Choose some images to make them square</h1>
+    <section class="upload-area">
+      <input id='files' type="file" onchange="newFile(this);" multiple>
+      <label for="files">Choose Images</label>
+    </section>
 
-    <section class="download-links"></section>
-    <section class="square-images"></section>
-
+    <section class="results"></section>
   </main>
 
   
   <script>
 
 
-    function workerMessageHandler(e) {
+    function workerMessageHandler(e, filename) {
       var returnObject = e.data;
 
       if (returnObject.type === "DATA_URI") {
@@ -78,16 +122,20 @@
           var height = returnObject.height;
           
           var anchor = document.createElement('a');
-          anchor.download = "Square.jpg";
+          anchor.download = "sq_" + filename;
           anchor.href = dataUri;
           anchor.innerText = 'Download';
-          document.querySelector('.download-links').appendChild(anchor);
 
           var image = document.createElement("img");
           image.src = dataUri;
           image.width = width;
           image.height = height;
-          document.querySelector('.square-images').appendChild(image);
+          
+          var resultDiv = document.createElement("div");
+          resultDiv.classList.add('result-download');
+          resultDiv.appendChild(image);
+          resultDiv.appendChild(anchor);
+          document.querySelector('.results').appendChild(resultDiv);
       }
     }
 
@@ -96,7 +144,7 @@
             start = (new Date()).getTime();
         worker.onmessage = function(e){
             console.log(filename + " processed to "+ e.data.type +" in " + ((new Date()).getTime() - start) + "ms");
-            workerMessageHandler(e);
+            workerMessageHandler(e, filename);
         };
         worker.onerror = function(e){
             var message = "Could not process "+ filename + ': Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message;
